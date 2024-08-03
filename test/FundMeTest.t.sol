@@ -5,16 +5,21 @@ import {Test,console} from "forge-std/Test.sol";
 import {FundMe} from "../src/FundMe.sol";
 
 contract FundMeTest is Test{
-    FundMe fundme;
+    FundMe fundMe;
     function setUp() external {
-        fundme=new FundMe();
+        fundMe=new FundMe();
     }
 
     function testMiniUsdIsOne() public view {
-        assertEq(fundme.miniUsd(),1e18);      
+        assertEq(fundMe.miniUsd(),1e18);      
     }
 
     function testOwnerIsMsgSender() public view {
-        assertEq(fundme.i_owner(),address(this));  
+        assertEq(fundMe.i_owner(),address(this));  
+    }
+
+    function testGetVersion() public view {
+        uint256 version=fundMe.getVersion();
+        assertEq(version,4);
     }
 }

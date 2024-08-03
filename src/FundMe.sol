@@ -6,8 +6,11 @@ pragma solidity ^0.8.18;
 //set a minimum funding value in usd
 
 import {PriceConverter} from './PriceConverter.sol';
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";// for getVersion()
 
 contract FundMe {
+    using PriceConverter for uint256;
+
     uint256 public miniUsd=1e18;
     address public immutable i_owner;
     address[] private funders;
@@ -18,7 +21,7 @@ contract FundMe {
     }
 
     function fund() public payable{
-        require( msg.value>=miniUsd);
+        require( msg.value.getConversionRate()>=miniUsd);
         funders.push(msg.sender);
         funderToAmount[msg.sender]=msg.value;
     }
@@ -31,6 +34,11 @@ contract FundMe {
             address funderAddr = funders[i];
              funderToAmount[funderAddr]=0;
         }
+    }
+
+    function getVersion() public view returns(uint256) {
+        AggregatorV3Interface priceFeed= AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306);
+        return priceFeed.version();
     }
 
     modifier onlyOwner{
