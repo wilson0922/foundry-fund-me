@@ -6,9 +6,12 @@ pragma solidity ^0.8.18;
 //set this so that our tests will work no matter we r on a local chain or any chains
 
 import {Script} from "forge-std/Script.sol";
+import {MockV3Aggregator} from "lib/chainlink-brownie-contracts/contracts/src/v0.8/tests/MockV3Aggregator.sol";
 
-contract HelperConfig {
+contract HelperConfig is Script {
     NetworkConfig public activeNetworkConfig;
+    uint8 public constant DECIMALS=8;
+    int256 public constant INITIAL_PRICE=2000e8;
 
     struct NetworkConfig {
         address priceFeed;
@@ -38,5 +41,15 @@ contract HelperConfig {
         return mainnetConfig;
     }
 
-    function getAnvilEthConfig() public pure returns (NetworkConfig memory) {}
+    function getAnvilEthConfig() public returns (NetworkConfig memory) {
+        vm.startBroadcast();
+        MockV3Aggregator mockPriceFeed = new MockV3Aggregator(DECIMALS, INITIAL_PRICE);
+        vm.stopBroadcast();
+
+        NetworkConfig memory anvilConfig = NetworkConfig({
+            priceFeed: address(mockPriceFeed)
+        });
+
+        return anvilConfig;
+    }
 }
