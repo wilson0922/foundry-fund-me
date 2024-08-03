@@ -8,7 +8,7 @@ pragma solidity ^0.8.18;
 import {PriceConverter} from './PriceConverter.sol';
 
 contract FundMe {
-    uint256 private miniUsd=1e18;
+    uint256 public miniUsd=1e18;
     address private owner;
     address[] private funders;
     mapping(address funder =>uint256 amount) funderToAmount;
