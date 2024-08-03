@@ -12,5 +12,9 @@ contract FundMeTest is Test{
 
     function testMiniUsdIsOne() public view {
         assertEq(fundme.miniUsd(),1e18);      
-    } 
+    }
+
+    function testOwnerIsMsgSender() public view {
+        assertEq(fundme.i_owner(),address(this));  
+    }
 }

@@ -9,12 +9,12 @@ import {PriceConverter} from './PriceConverter.sol';
 
 contract FundMe {
     uint256 public miniUsd=1e18;
-    address private owner;
+    address public immutable i_owner;
     address[] private funders;
     mapping(address funder =>uint256 amount) funderToAmount;
     
     constructor(){
-        owner=msg.sender;
+        i_owner=msg.sender;
     }
 
     function fund() public payable{
@@ -34,7 +34,7 @@ contract FundMe {
     }
 
     modifier onlyOwner{
-        require(owner==msg.sender);
+        require(i_owner==msg.sender);
         _;
     }
 
