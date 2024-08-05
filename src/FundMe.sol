@@ -29,13 +29,29 @@ contract FundMe {
     }
 
     function withdraw() public onlyOwner{
-        (bool success,)= payable(msg.sender).call{value:address(this).balance}('');
-        require(success, 'withdraw failed');
-        s_funders=new address[](0);
         for(uint256 i=0;i<s_funders.length;i++){
             address funderAddr = s_funders[i];
              s_funderToAmount[funderAddr]=0;
         }
+
+        (bool success,)= payable(msg.sender).call{value:address(this).balance}('');
+        require(success, 'withdraw failed');
+
+        s_funders=new address[](0);
+    }
+
+    function cheaperWithdraw() public onlyOwner {
+        uint256 fundersLength =s_funders.length;
+
+        for(uint256 i=0;i<fundersLength;i++){
+            address funderAddr = s_funders[i];
+             s_funderToAmount[funderAddr]=0;
+        }
+
+        (bool success,)= payable(msg.sender).call{value:address(this).balance}('');
+        require(success, 'withdraw failed');
+
+        s_funders=new address[](0);
     }
 
     function getVersion() public view returns(uint256) {

@@ -8,8 +8,9 @@ import {DeployFundMe} from "../script/DeployFundMe.s.sol";
 contract FundMeTest is Test{
     FundMe fundMe;
     address USER = makeAddr('user');
-    uint256 STARTING_BALNACE=50 ether;
-    uint256 SEND_VALUE=0.1 ether;
+    uint256 constant STARTING_BALNACE=50 ether;
+    uint256 constant SEND_VALUE=0.1 ether;
+    uint256 constant GAS_PRICE=1;
 
     function setUp() external {
         DeployFundMe deployFundMe=new DeployFundMe();
@@ -62,9 +63,10 @@ contract FundMeTest is Test{
         fundMe.withdraw();
 
         uint256 endingOwnerBal= fundMe.getOwner().balance;
+        uint256 endingFundMeBal= address(fundMe).balance;
 
         // assert
-        assertEq(address(fundMe).balance,0);
+        assertEq(endingFundMeBal,0);
         assertEq(startingOwnerBal+startingFundMeBal,endingOwnerBal);
 
     }
@@ -88,9 +90,37 @@ contract FundMeTest is Test{
         fundMe.withdraw();
 
         uint256 endingOwnerBal= fundMe.getOwner().balance;
+        uint256 endingFundMeBal= address(fundMe).balance;
 
         // assert
-        assertEq(address(fundMe).balance,0);
+        assertEq(endingFundMeBal,0);
+        assertEq(startingOwnerBal+startingFundMeBal,endingOwnerBal);
+
+    }
+
+    function testWithdrawMultiFundersCheaper() public {
+        // arrage
+        uint160 numOfFunders=3;
+        uint160 startingFunderIndex=1;
+
+        for(uint160 i=startingFunderIndex; i<=numOfFunders; i++ ){
+            hoax(address(i),SEND_VALUE);
+            fundMe.fund{value:SEND_VALUE}();
+        }
+
+        uint256 startingOwnerBal= fundMe.getOwner().balance;
+        uint256 startingFundMeBal=address(fundMe).balance;
+
+        // act
+        address owner=fundMe.getOwner();
+        vm.prank(owner);
+        fundMe.cheaperWithdraw();
+
+        uint256 endingOwnerBal= fundMe.getOwner().balance;
+        uint256 endingFundMeBal= address(fundMe).balance;
+
+        // assert
+        assertEq(endingFundMeBal,0);
         assertEq(startingOwnerBal+startingFundMeBal,endingOwnerBal);
 
     }
